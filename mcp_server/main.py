@@ -33,6 +33,8 @@ from agents.facebook_intelligence.agent import FacebookIntelligenceAgent
 from agents.linkedin_intelligence.agent import LinkedInIntelligenceAgent
 from agents.wordpress_intelligence.agent import WordPressIntelligenceAgent
 from agents.wix_intelligence.agent import WixIntelligenceAgent
+from agents.gumroad_intelligence.agent import GumroadIntelligenceAgent
+from agents.payhip_intelligence.agent import PayhipIntelligenceAgent
 
 logger = logging.getLogger("mcp_server")
 
@@ -129,6 +131,8 @@ class MCPServer:
             "linkedin_intelligence": (LinkedInIntelligenceAgent, {"hashtags": [], "companies": []}),
             "wordpress_intelligence": (WordPressIntelligenceAgent, {"site_url": "", "require_seo_check": True}),
             "wix_intelligence": (WixIntelligenceAgent, {"site_id": "", "site_url": "", "use_seo_wiz": True}),
+            "gumroad_intelligence": (GumroadIntelligenceAgent, {"gumroad_url": "", "support_subscriptions": True}),
+            "payhip_intelligence": (PayhipIntelligenceAgent, {"payhip_url": "", "support_free": True}),
         }
         
         for agent_id, (agent_class, config) in agents_config.items():

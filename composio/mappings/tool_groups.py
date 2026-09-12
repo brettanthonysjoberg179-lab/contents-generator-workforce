@@ -3,8 +3,8 @@
 RESEARCH_TOOLS = ["reddit", "x", "tiktok", "facebook", "linkedin", "web_search", "google_search"]
 STORAGE_TOOLS = ["airtable", "google_drive", "obsidian"]
 PRODUCTION_TOOLS = ["google_drive", "obsidian", "github", "filesystem"]
-PUBLISHING_TOOLS = ["facebook", "tiktok", "x", "linkedin", "wordpress", "wix"]
-ANALYTICS_TOOLS = ["airtable", "platform_analytics", "wordpress", "wix"]
+PUBLISHING_TOOLS = ["facebook", "tiktok", "x", "linkedin", "wordpress", "wix", "gumroad", "payhip"]
+ANALYTICS_TOOLS = ["airtable", "platform_analytics", "wordpress", "wix", "gumroad", "payhip"]
 
 TOOL_GROUP_DEFINITIONS = {
     "research": {

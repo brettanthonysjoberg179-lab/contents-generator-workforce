@@ -174,13 +174,13 @@ class ToolRegistry:
             "tool_prefixes": []
         },
         "publishing": {
-            "apps": ["facebook", "tiktok", "x", "linkedin", "wordpress", "wix"],
-            "description": "Social media and CMS publishing tools including WordPress and Wix",
-            "permissions": ["write"],
-            "tool_prefixes": ["facebook_", "tiktok_", "x_", "linkedin_", "wordpress_", "wix_"]
-        },
-        "analytics": {
-            "apps": ["airtable", "platform_analytics", "wordpress", "wix"],
+                    "tools": PUBLISHING_TOOLS,
+                    "description": "Social media and CMS publishing tools including WordPress, Wix, Gumroad and Payhip",
+                    "permission": "write",
+                    "tool_prefixes": ["facebook_", "tiktok_", "x_", "linkedin_", "wordpress_", "wix_", "gumroad_", "payhip_"]
+                },
+                "analytics": {
+                    "apps": ["airtable", "platform_analytics", "wordpress", "wix", "gumroad", "payhip"],
             "description": "Analytics tools",
             "permissions": ["read"],
             "tool_prefixes": []
