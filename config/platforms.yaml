@@ -1,3 +1,4 @@
+  platforms:
   wordpress:
     name: "WordPress"
     type: "cms"
@@ -127,3 +128,92 @@
       - conversion_rates
       - review_sentiment
       - global_reach
+  gumroad:
+    name: "Gumroad"
+    type: "digital_marketplace"
+    composio_app: "gumroad"
+    api_base: "https://api.gumroad.com/v2"
+    requires_auth: true
+    post_types:
+      - digital_product
+      - course
+      - ebook
+      - membership
+      - template
+      - bundle
+    max_post_length: 5000
+    rate_limit: "60 requests per minute"
+    content_rules:
+      - "Product description required with features and benefits"
+      - "Thumbnail image required (minimum 360x200px)"
+      - "Pricing must be set"
+      - "Category must be selected"
+      - "No illegal or copyrighted content"
+    features:
+      - product_creation
+      - digital_delivery
+      - payment_processing
+      - subscription_support
+      - drip_content
+      - coupons
+      - affiliate_program
+      - analytics
+      - email_capture
+      - preview_pages
+    integrations:
+      - stripe_payments
+      - paypal
+      - mailchimp
+      - convertkit
+      - twitter_creator
+    default_categories: []
+    monitoring_features:
+      - sales_analytics
+      - conversion_rates
+      - customer_emails
+      - refund_tracking
+      - affiliate_stats
+
+  payhip:
+    name: "Payhip"
+    type: "digital_marketplace"
+    composio_app: "payhip"
+    api_base: "https://api.payhip.com/v2"
+    requires_auth: true
+    post_types:
+      - digital_product
+      - course
+      - membership
+      - ebook
+      - software
+    max_post_length: 5000
+    rate_limit: "60 requests per minute"
+    content_rules:
+      - "Product description required"
+      - "File upload required for all products"
+      - "Pricing must be set (free or paid)"
+      - "Category must be selected"
+    features:
+      - product_creation
+      - digital_delivery
+      - payment_processing
+      - membership_support
+      - affiliate_program
+      - free_products
+      - pay_what_you_want
+      - coupons
+      - analytics
+      - email_list
+    integrations:
+      - stripe_payments
+      - paypal
+      - mailchimp
+      - convertkit
+      - woocommerce
+    default_categories: []
+    monitoring_features:
+      - sales_analytics
+      - conversion_rates
+      - customer_list
+      - affiliate_stats
+      - revenue_tracking
