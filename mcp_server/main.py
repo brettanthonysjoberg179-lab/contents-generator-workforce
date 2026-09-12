@@ -31,6 +31,8 @@ from agents.x_intelligence.agent import XIntelligenceAgent
 from agents.tiktok_intelligence.agent import TikTokIntelligenceAgent
 from agents.facebook_intelligence.agent import FacebookIntelligenceAgent
 from agents.linkedin_intelligence.agent import LinkedInIntelligenceAgent
+from agents.wordpress_intelligence.agent import WordPressIntelligenceAgent
+from agents.wix_intelligence.agent import WixIntelligenceAgent
 
 logger = logging.getLogger("mcp_server")
 
@@ -125,6 +127,8 @@ class MCPServer:
             "tiktok_intelligence": (TikTokIntelligenceAgent, {"hashtags": [], "creators": []}),
             "facebook_intelligence": (FacebookIntelligenceAgent, {"pages": [], "groups": []}),
             "linkedin_intelligence": (LinkedInIntelligenceAgent, {"hashtags": [], "companies": []}),
+            "wordpress_intelligence": (WordPressIntelligenceAgent, {"site_url": "", "require_seo_check": True}),
+            "wix_intelligence": (WixIntelligenceAgent, {"site_id": "", "site_url": "", "use_seo_wiz": True}),
         }
         
         for agent_id, (agent_class, config) in agents_config.items():

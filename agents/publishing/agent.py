@@ -13,7 +13,7 @@ class PublishingAgent(BaseAgent):
 
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
-        self.platforms = config.get("platforms", ["x", "facebook", "linkedin", "tiktok"])
+        self.platforms = config.get("platforms", ["x", "facebook", "linkedin", "tiktok", "wordpress", "wix"])
 
     async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         results = context.get("qa_output", {}).get("qa_results", [])

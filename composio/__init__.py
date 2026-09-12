@@ -174,13 +174,13 @@ class ToolRegistry:
             "tool_prefixes": []
         },
         "publishing": {
-            "apps": ["facebook", "tiktok", "x", "linkedin"],
-            "description": "Publishing tools",
+            "apps": ["facebook", "tiktok", "x", "linkedin", "wordpress", "wix"],
+            "description": "Social media and CMS publishing tools including WordPress and Wix",
             "permissions": ["write"],
-            "tool_prefixes": ["facebook_", "tiktok_", "x_", "linkedin_"]
+            "tool_prefixes": ["facebook_", "tiktok_", "x_", "linkedin_", "wordpress_", "wix_"]
         },
         "analytics": {
-            "apps": ["airtable", "platform_analytics"],
+            "apps": ["airtable", "platform_analytics", "wordpress", "wix"],
             "description": "Analytics tools",
             "permissions": ["read"],
             "tool_prefixes": []
@@ -223,7 +223,7 @@ def get_session_manager() -> SessionManager:
 # Import mappings
 from composio.mappings import (
     RESEARCH_TOOLS, STORAGE_TOOLS, PRODUCTION_TOOLS, PUBLISHING_TOOLS, ANALYTICS_TOOLS,
-    TOOL_GROUP_DEFINITIONS, get_tools_for_group, get_all_tool_groups, get_agents_for_group
+    TOOL_GROUP_DEFINITIONS, get_tools_for_group, get_all_tool_groups, get_agents_for_group, get_platform_agents
 )
 
 __version__ = "1.0.0"

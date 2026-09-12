@@ -1,167 +1,89 @@
-# Content Generator Workforce - Platform Configuration
-# Defines all supported social media platforms
-
-platforms:
-  reddit:
-    name: "Reddit"
-    type: "forum"
-    composio_app: "reddit"
-    api_base: "https://www.reddit.com"
+  wordpress:
+    name: "WordPress"
+    type: "cms"
+    composio_app: "wordpress"
+    api_base: "https://public-api.wordpress.com"
     requires_auth: true
     post_types:
       - text
-      - link
       - image
-      - poll
-    max_post_length: 40000
-    max_comment_length: 10000
+      - video
+      - link
+      - page
+      - custom_post_type
+    max_post_length: 100000
+    max_media_size_mb: 100
     rate_limit: "60 requests per minute"
     content_rules:
-      - "No spam or self-promotion without disclosure"
-      - "Contribute to discussions before posting"
-      - "Disclose AI-generated content"
-    default_subreddits: []
-    monitoring_features:
-      - keyword_tracking
-      - sentiment_analysis
-      - trending_topics
-      - community_questions
-
-  x:
-    name: "X (Twitter)"
-    type: "microblog"
-    composio_app: "x"
-    api_base: "https://api.x.com"
-    requires_auth: true
-    post_types:
-      - text
-      - image
-      - video
-      - thread
-    max_post_length: 280
-    thread_max_posts: 25
-    rate_limit: "300 requests per 15 minutes"
-    content_rules:
-      - "Use relevant hashtags"
-      - "Engage with replies within 1 hour"
-      - "Threads should have narrative arc"
+      - "SEO optimization required for all posts"
+      - "Use featured images for every post"
+      - "Proper categories and tags required"
+      - "No excessive keyword stuffing"
+      - "Block editor compatible content preferred"
     features:
-      - thread_support
-      - poll_support
-      - media_upload
-      - quote_tweet
-
-  tiktok:
-    name: "TikTok"
-    type: "short_video"
-    composio_app: "tiktok"
-    api_base: "https://api.tiktok.com"
-    requires_auth: true
-    post_types:
-      - video
-      - image
-    video_formats:
-      - vertical_9_16
-      - square_1_1
-    max_duration: 180
-    min_duration: 3
-    rate_limit: "50 requests per minute"
-    content_rules:
-      - "First 3 seconds are critical (hook)"
-      - "Use trending audio when relevant"
-      - "Caption required for accessibility"
-    features:
-      - video_upload
+      - post_publishing
+      - page_management
+      - media_library
+      - categories_tags
+      - featured_images
+      - seo_metadata
+      - custom_post_types
       - draft_workflow
-      - direct_posting
-      - caption_generator
+      - scheduled_publishing
+      - revisions
+    integrations:
+      - woocommerce
+      - jetpack
+      - yoast_seo
+      - elementor
+    default_categories: []
+    monitoring_features:
+      - post_analytics
+      - traffic_sources
+      - search_console
+      - reader_stats
 
-  facebook:
-    name: "Facebook"
-    type: "social_network"
-    composio_app: "facebook"
-    api_base: "https://graph.facebook.com"
+  wix:
+    name: "Wix"
+    type: "website_builder"
+    composio_app: "wix"
+    api_base: "https://www.wix.com/velo"
     requires_auth: true
     post_types:
       - text
       - image
       - video
-      - link
-      - event
-    max_post_length: 63206
-    image_max_size_mb: 15
-    video_max_size_mb: 4000
-    rate_limit: "200 requests per hour"
+      - portfolio
+      - blog_post
+      - page
+    max_post_length: 50000
+    max_media_size_mb: 50
+    rate_limit: "30 requests per minute"
     content_rules:
-      - "Community guidelines compliance"
-      - "No clickbait"
-      - "Native content preferred over links"
+      - "Mobile-responsive design required"
+      - "Use Wix ADI or editor for layout"
+      - "Optimize images for web"
+      - "SEO meta tags required"
     features:
-      - page_posting
-      - group_posting
-      - event_creation
-      - poll_creation
-
-  linkedin:
-    name: "LinkedIn"
-    type: "professional_network"
-    composio_app: "linkedin"
-    api_base: "https://api.linkedin.com"
-    requires_auth: true
-    post_types:
-      - text
-      - image
-      - document
-      - article
-      - video
-    max_post_length: 3000
-    article_max_length: 125000
-    rate_limit: "100 requests per day"
-    content_rules:
-      - "Professional tone required"
-      - "No overt sales pitches"
-      - "Thought leadership preferred"
-      - "Hashtag limit: 3-5"
-    features:
-      - post
-      - article_publish
-      - document_upload
-      - carousel
-
-content_atomisation:
-  description: "Map content types to platforms"
-  mappings:
-    long_form_article:
-      - platforms: ["linkedin_article", "medium"]
-      - repurposed_to: ["social_post", "video_script", "threads"]
-    
-    social_post:
-      - platforms: ["x", "facebook", "linkedin"]
-      - formats: ["text_post", "image_post", "carousel"]
-    
-    video_script:
-      - platforms: ["tiktok", "instagram_reels", "youtube_shorts"]
-      - formats: ["short_video", "story"]
-    
-    thread:
-      - platforms: ["x", "linkedin"]
-      - format: "multi_post_series"
-
-posting_schedule:
-  default_timezone: "Australia/Sydney"
-  schedules:
-    reddit:
-      best_times: ["08:00", "12:00", "18:00", "22:00"]
-      frequency: "daily"
-    x:
-      best_times: ["07:00", "12:00", "17:00", "21:00"]
-      frequency: "3-5_per_day"
-    tiktok:
-      best_times: ["18:00", "20:00", "22:00"]
-      frequency: "1-2_per_day"
-    facebook:
-      best_times: ["09:00", "13:00", "19:00"]
-      frequency: "1-2_per_day"
-    linkedin:
-      best_times: ["08:00", "12:00", "17:00"]
-      frequency: "1_per_day"
+      - blog_publishing
+      - page_builder
+      - drag_drop_editor
+      - mobile_responsive
+      - seo_tools
+      - velo_code
+      - business_account
+      - appointments
+      - bookings
+      - payments
+    integrations:
+      - wix_editor
+      - wix_velo
+      - wix_sites
+      - wix_business
+      - wix_payments
+    default_categories: []
+    monitoring_features:
+      - site_analytics
+      - visitor_tracking
+      - conversion_tracking
+      - seo_rankings
