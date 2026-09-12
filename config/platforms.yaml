@@ -87,3 +87,43 @@
       - visitor_tracking
       - conversion_tracking
       - seo_rankings
+  google_play_books:
+    name: "Google Play Books"
+    type: "ebook_marketplace"
+    composio_app: "google_play_books"
+    api_base: "https://www.googleapis.com/books/v1"
+    requires_auth: true
+    post_types:
+      - ebook
+      - audiobook
+      - periodical
+      - textbook
+    max_post_length: 10000
+    rate_limit: "60 requests per minute"
+    content_rules:
+      - "EPUB or PDF format required"
+      - "Book metadata required (title, author, description, ISBN)"
+      - "Cover image required (minimum 800x1280px)"
+      - "Proper categorization required"
+      - "No copyrighted material without authorization"
+    features:
+      - book_upload
+      - ebook_distribution
+      - global_reach
+      - preorder_support
+      - pricing_control
+      - promo_codes
+      - analytics
+      - reader_engagement
+      - reviews_management
+    integrations:
+      - google_drive
+      - stripe_payments
+      - google_analytics
+    default_categories: []
+    monitoring_features:
+      - sales_analytics
+      - reader_stats
+      - conversion_rates
+      - review_sentiment
+      - global_reach
