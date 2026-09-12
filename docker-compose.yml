@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # Ollama — Local LLM inference with GPU support
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: workforce-ollama
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_GPU_LAYERS=-1
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Workforce MCP Server — FastAPI server exposing all agents as tools
+  # ---------------------------------------------------------------------------
+  workforce-mcp:
+    build: .
+    container_name: workforce-mcp
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:latest
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY}
+      - AIRTABLE_API_KEY=${AIRTABLE_API_KEY}
+      - AIRTABLE_BASE_ID=${AIRTABLE_BASE_ID}
+      - LOG_LEVEL=INFO
+      - WORKFORCE_PORT=8000
+      - PYTHONPATH=/app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: honcho start -f honcho.yml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Adminer — SQLite/PostgreSQL visualization (optional)
+  # ---------------------------------------------------------------------------
+  adminer:
+    image: adminer:latest
+    container_name: workforce-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+
+volumes:
+  ollama_models:

@@ -1,0 +1,238 @@
+# Content Generator Workforce - Agent Registry
+# Defines all agents, their configurations, and permissions
+
+agents:
+  orchestrator:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.3
+    max_tokens: 4096
+    allowed_tools: ["ollama", "mcp", "composio", "airtable", "obsidian", "google_drive", "filesystem", "scheduler", "git"]
+    read_permissions: ["*"]
+    write_permissions: ["*"]
+    upstream: []
+    downstream: ["trend_intelligence", "research", "audience_intelligence"]
+    fail_fast: false
+
+  trend_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 2048
+    allowed_tools: ["composio", "reddit", "x", "tiktok", "facebook", "linkedin", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["trends", "research", "analytics"]
+    write_permissions: ["trends", "opportunities"]
+    upstream: ["orchestrator"]
+    downstream: ["content_strategy", "research"]
+
+  research:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.4
+    max_tokens: 4096
+    allowed_tools: ["composio", "web_search", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write", "google_drive_read", "google_drive_write"]
+    read_permissions: ["trends", "brand", "research"]
+    write_permissions: ["research", "sources", "facts"]
+    upstream: ["orchestrator", "trend_intelligence"]
+    downstream: ["content_strategy", "article_writer", "fact_check"]
+    max_sources: 10
+    min_credibility_score: 0.7
+
+  audience_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.4
+    max_tokens: 2048
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["research", "platform_data"]
+    write_permissions: ["audience_model", "personas"]
+    upstream: ["orchestrator", "reddit_intelligence", "x_intelligence", "tiktok_intelligence", "facebook_intelligence", "linkedin_intelligence"]
+    downstream: ["content_strategy", "article_writer", "social_content", "video_script", "seo"]
+
+  reddit_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 2048
+    allowed_tools: ["ollama", "composio", "reddit", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["subreddits", "posts", "comments"]
+    write_permissions: ["research", "audience_insights"]
+    upstream: ["orchestrator"]
+    downstream: ["audience_intelligence", "trend_intelligence", "research"]
+
+  x_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 2048
+    allowed_tools: ["ollama", "composio", "x", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["trends", "conversations"]
+    write_permissions: ["research", "audience_insights"]
+    upstream: ["orchestrator"]
+    downstream: ["audience_intelligence", "trend_intelligence", "research"]
+
+  tiktok_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 2048
+    allowed_tools: ["ollama", "composio", "tiktok", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["trends", "videos"]
+    write_permissions: ["research", "audience_insights"]
+    upstream: ["orchestrator"]
+    downstream: ["audience_intelligence", "trend_intelligence", "research"]
+
+  facebook_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 2048
+    allowed_tools: ["ollama", "composio", "facebook", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["pages", "groups", "posts"]
+    write_permissions: ["research", "audience_insights"]
+    upstream: ["orchestrator"]
+    downstream: ["audience_intelligence", "trend_intelligence", "research"]
+
+  linkedin_intelligence:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 2048
+    allowed_tools: ["ollama", "composio", "linkedin", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["posts", "articles", "profiles"]
+    write_permissions: ["research", "audience_insights"]
+    upstream: ["orchestrator"]
+    downstream: ["audience_intelligence", "trend_intelligence", "research"]
+
+  content_strategy:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.4
+    max_tokens: 4096
+    allowed_tools: ["airtable_read", "airtable_write", "obsidian_read", "obsidian_write", "google_drive_read", "google_drive_write"]
+    read_permissions: ["trends", "research", "audience", "brand", "analytics"]
+    write_permissions: ["campaigns", "content_briefs", "content_calendar"]
+    upstream: ["orchestrator", "trend_intelligence", "research", "audience_intelligence"]
+    downstream: ["article_writer", "social_content", "video_script", "seo", "repurposing"]
+
+  article_writer:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.6
+    max_tokens: 8192
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write", "google_drive_read", "google_drive_write"]
+    read_permissions: ["content_briefs", "research", "brand"]
+    write_permissions: ["content", "drafts"]
+    upstream: ["orchestrator", "content_strategy", "research"]
+    downstream: ["seo", "repurposing", "fact_check", "qa"]
+    writing_style: "professional"
+    target_word_count: 1500
+
+  social_content:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.7
+    max_tokens: 4096
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["content_briefs", "brand"]
+    write_permissions: ["content", "drafts"]
+    upstream: ["orchestrator", "content_strategy"]
+    downstream: ["publishing", "qa"]
+    platforms: ["x", "facebook", "linkedin"]
+    tone: "conversational"
+
+  video_script:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.6
+    max_tokens: 4096
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write", "google_drive_read", "google_drive_write"]
+    read_permissions: ["content_briefs", "brand"]
+    write_permissions: ["content", "drafts"]
+    upstream: ["orchestrator", "content_strategy"]
+    downstream: ["repurposing", "publishing", "qa"]
+    format: "short_form"
+    target_duration: 60
+
+  seo:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.3
+    max_tokens: 4096
+    allowed_tools: ["ollama", "search", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["content_briefs", "research", "content"]
+    write_permissions: ["seo_metadata", "content"]
+    upstream: ["orchestrator", "content_strategy", "article_writer", "audience_intelligence"]
+    downstream: ["qa", "publishing"]
+
+  repurposing:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.5
+    max_tokens: 4096
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["content", "content_briefs"]
+    write_permissions: ["content", "drafts"]
+    upstream: ["orchestrator", "content_strategy", "article_writer", "video_script", "social_content"]
+    downstream: ["fact_check", "qa", "publishing"]
+    output_formats: ["x_post", "linkedin_post", "facebook_post", "tiktok_concept", "hook"]
+
+  fact_check:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.2
+    max_tokens: 4096
+    allowed_tools: ["ollama", "web_search", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["content", "research"]
+    write_permissions: ["fact_checks"]
+    upstream: ["orchestrator", "article_writer", "social_content", "video_script"]
+    downstream: ["qa"]
+    confidence_threshold: 0.8
+
+  qa:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.2
+    max_tokens: 4096
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["content", "brand", "fact_checks"]
+    write_permissions: ["qa_results"]
+    upstream: ["orchestrator", "article_writer", "social_content", "video_script", "fact_check", "seo"]
+    downstream: ["publishing"]
+    checklist: ["grammar", "brand_voice", "format", "links"]
+
+  publishing:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.3
+    max_tokens: 4096
+    allowed_tools: ["ollama", "composio", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["content", "approved_content"]
+    write_permissions: ["publish_log", "status"]
+    upstream: ["orchestrator", "qa"]
+    downstream: ["analytics"]
+    platforms: ["x", "facebook", "linkedin", "tiktok"]
+
+  analytics:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.3
+    max_tokens: 4096
+    allowed_tools: ["ollama", "composio", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["publish_log", "content"]
+    write_permissions: ["analytics", "reports"]
+    upstream: ["orchestrator", "publishing"]
+    downstream: ["optimisation", "content_strategy"]
+    metrics: ["impressions", "engagement", "clicks", "conversions"]
+
+  optimisation:
+    enabled: true
+    model: "llama3.2:latest"
+    temperature: 0.3
+    max_tokens: 4096
+    allowed_tools: ["ollama", "airtable_read", "airtable_write", "obsidian_read", "obsidian_write"]
+    read_permissions: ["analytics", "content", "campaigns"]
+    write_permissions: ["learnings", "recommendations"]
+    upstream: ["orchestrator", "analytics"]
+    downstream: ["content_strategy", "trend_intelligence"]
+    learning_rate: 0.1

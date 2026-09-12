@@ -1,0 +1,173 @@
+"""Composio integration module for the Content Generator Workforce."""
+from composio import Composio
+from composio.client import ComposioClient
+from composio.client.models import (
+    ConnectedAccount,
+    App,
+    Tool,
+)
+from composio.client.actions import ActionParameters
+import os
+import logging
+from typing import Any, Dict, List, Optional
+
+logger = logging.getLogger("composio")
+
+class ComposioIntegration:
+    """High-level Composio integration for the workforce."""
+    
+    def __init__(self, api_key: str = None):
+        self.api_key = api_key or os.getenv("COMPOSIO_API_KEY", "")
+        if self.api_key:
+            self.client = Composio(api_key=self.api_key)
+        else:
+            self.client = None
+    
+    def get_session(self, session_id: str) -> Optional[Any]:
+        """Get a Composio session by ID."""
+        if not self.client:
+            return None
+        try:
+            return self.client.sessions.get(session_id)
+        except Exception:
+            return None
+    
+    def create_session(self, app_name: str, entity_id: str = None) -> str:
+        """Create a new Composio session for an app."""
+        if not self.client:
+            raise ValueError("Composio client not initialized")
+        session = self.client.sessions.create(app=app_name, entity_id=entity_id)
+        return session.id
+    
+    def execute_tool(self, session_id: str, tool_name: str, arguments: Dict) -> Dict[str, Any]:
+        """Execute a tool through a Composio session."""
+        if not self.client:
+            return {"success": False, "error": "Composio client not initialized"}
+        try:
+            session = self.client.sessions.get(session_id)
+            result = session.execute_tool(tool_name, arguments)
+            return {"success": True, "result": result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def list_connected_accounts(self) -> List[ConnectedAccount]:
+        """List all connected Composio accounts."""
+        if not self.client:
+            return []
+        try:
+            return self.client.connected_accounts.list()
+        except Exception:
+            return []
+    
+    def list_tools(self, app_name: str = None) -> List[Tool]:
+        """List available tools from Composio."""
+        if not self.client:
+            return []
+        try:
+            if app_name:
+                return self.client.tools.list(app=app_name)
+            return self.client.tools.list()
+        except Exception:
+            return []
+    
+    def get_auth_url(self, app_name: str, entity_id: str = None) -> str:
+        """Get the authentication URL for an app."""
+        if not self.client:
+            return ""
+        session = self.client.sessions.create(app=app_name, entity_id=entity_id)
+        return session.auth_url
+
+class SessionManager:
+    """Manages Composio sessions with caching."""
+    
+    def __init__(self, composio: ComposioIntegration):
+        self.composio = composio
+        self._cache: Dict[str, Any] = {}
+    
+    def get_or_create(self, app_name: str, entity_id: str = None) -> str:
+        """Get existing session or create a new one."""
+        cache_key = f"{app_name}:{entity_id}"
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+        
+        session_id = self.composio.create_session(app_name, entity_id)
+        self._cache[cache_key] = session_id
+        return session_id
+    
+    def execute(self, session_id: str, tool_name: str, arguments: Dict) -> Dict[str, Any]:
+        """Execute a tool through a session."""
+        return self.composio.execute_tool(session_id, tool_name, arguments)
+    
+    def cleanup_expired(self):
+        """Remove expired sessions from cache."""
+        # Implement TTL-based cleanup as needed
+        pass
+
+class ToolRegistry:
+    """Registry of Composio tools organized by group."""
+    
+    TOOL_GROUPS = {
+        "research": {
+            "apps": ["reddit", "x", "tiktok", "facebook", "linkedin", "web_search", "google_search"],
+            "description": "Tools for researching topics across platforms",
+            "permissions": ["read"]
+        },
+        "storage": {
+            "apps": ["airtable", "google_drive", "obsidian"],
+            "description": "Tools for reading and writing structured data",
+            "permissions": ["read", "write"]
+        },
+        "production": {
+            "apps": ["google_drive", "obsidian", "github", "filesystem"],
+            "description": "Tools for content production and file management",
+            "permissions": ["read", "write"]
+        },
+        "publishing": {
+            "apps": ["facebook", "tiktok", "x", "linkedin"],
+            "description": "Tools for publishing content to platforms",
+            "permissions": ["write"]
+        },
+        "analytics": {
+            "apps": ["airtable", "platform_analytics"],
+            "description": "Tools for collecting performance metrics",
+            "permissions": ["read"]
+        }
+    }
+    
+    def __init__(self):
+        self._tools: Dict[str, List[Dict]] = {}
+    
+    def register_app(self, app_name: str, tools: List[Dict]):
+        """Register tools for an app."""
+        self._tools[app_name] = tools
+    
+    def get_tools(self, app_name: str) -> List[Dict]:
+        """Get tools for an app."""
+        return self._tools.get(app_name, [])
+    
+    def get_all_tools(self) -> Dict[str, List[Dict]]:
+        """Get all registered tools."""
+        return self._tools
+    
+    def get_tool_group(self, group_name: str) -> Dict[str, Any]:
+        """Get tools for a tool group."""
+        return self.TOOL_GROUPS.get(group_name, {})
+    
+    def get_tools_by_group(self, group_name: str) -> List[str]:
+        """Get app names for a tool group."""
+        group = self.TOOL_GROUPS.get(group_name, {})
+        return group.get("apps", [])
+
+# Singleton instances
+_composio_integration: Optional[ComposioIntegration] = None
+
+def get_composio_integration() -> ComposioIntegration:
+    """Get the global Composio integration instance."""
+    global _composio_integration
+    if _composio_integration is None:
+        _composio_integration = ComposioIntegration()
+    return _composio_integration
+
+def get_session_manager() -> SessionManager:
+    """Get the global session manager."""
+    return SessionManager(get_composio_integration())

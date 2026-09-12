@@ -1,0 +1,459 @@
+# =============================================================================
+# Airtable Base Configuration
+# Defines all tables, field schemas, and relationships for the workforce.
+# =============================================================================
+
+airtable:
+  api_key: "${AIRTABLE_API_KEY}"
+  base_id: "${AIRTABLE_BASE_ID}"
+  api_url: "https://api.airtable.com/v0"
+  timeout: 30
+  max_retries: 3
+  page_size: 100
+
+  # --- Table Definitions ---
+  tables:
+    # --- Campaigns ---
+    Campaigns:
+      description: "Content campaigns tracking goals, status, and timeline"
+      fields:
+        - name: "Name"
+          type: "singleLineText"
+          required: true
+          description: "Campaign name"
+        - name: "Description"
+          type: "longText"
+          required: false
+          description: "Campaign overview"
+        - name: "Status"
+          type: "singleSelect"
+          required: true
+          options: ["planning", "active", "paused", "completed", "archived"]
+          default: "planning"
+        - name: "Priority"
+          type: "singleSelect"
+          options: ["low", "medium", "high", "critical"]
+          default: "medium"
+        - name: "Topic"
+          type: "singleLineText"
+          required: true
+          description: "Main topic or theme"
+        - name: "Platforms"
+          type: "multiSelect"
+          options: ["Reddit", "X", "TikTok", "Facebook", "LinkedIn"]
+          description: "Target platforms"
+        - name: "StartDate"
+          type: "date"
+          required: true
+        - name: "EndDate"
+          type: "date"
+          required: true
+        - name: "Budget"
+          type: "currency"
+          description: "Campaign budget"
+        - name: "AssignedAgents"
+          type: "multiCollaborator"
+          description: "Agents assigned to this campaign"
+        - name: "CreatedBy"
+          type: "createdBy"
+        - name: "CreatedAt"
+          type: "createdTime"
+        - name: "UpdatedAt"
+          type: "lastModifiedTime"
+        - name: "WorkflowId"
+          type: "singleLineText"
+          description: "Associated workflow ID"
+        - name: "AnalyticsSummary"
+          type: "formula"
+          description: "Aggregated analytics from linked Content records"
+      relationships:
+        - table: "Content Ideas"
+          type: "oneToMany"
+          from_field: "CampaignId"
+        - table: "Analytics"
+          type: "oneToMany"
+          from_field: "CampaignId"
+
+    # --- Content Ideas ---
+    "Content Ideas":
+      description: "Brainstormed content ideas before they enter production"
+      fields:
+        - name: "Title"
+          type: "singleLineText"
+          required: true
+        - name: "Description"
+          type: "longText"
+        - name: "CampaignId"
+          type: "linkedRecord"
+          referenceTable: "Campaigns"
+        - name: "Type"
+          type: "singleSelect"
+          options: ["article", "social_post", "video_script", "infographic", "poll", "thread"]
+        - name: "Platform"
+          type: "singleSelect"
+          options: ["Reddit", "X", "TikTok", "Facebook", "LinkedIn", "Multi"]
+        - name: "Keywords"
+          type: "multiSelect"
+          description: "SEO keywords associated with this idea"
+        - name: "TrendScore"
+          type: "number"
+          description: "0-100 score from trend_intelligence agent"
+        - name: "AudienceFit"
+          type: "number"
+          description: "0-100 audience matching score"
+        - name: "Status"
+          type: "singleSelect"
+          options: ["idea", "approved", "in_progress", "rejected"]
+          default: "idea"
+        - name: "Priority"
+          type: "singleSelect"
+          options: ["low", "medium", "high"]
+        - name: "AssignedTo"
+          type: "linkedRecord"
+          referenceTable: "Agent Tasks"
+        - name: "ResearchNotes"
+          type: "longText"
+          description: "Findings from research agent"
+        - name: "CreatedAt"
+          type: "createdTime"
+        - name: "UpdatedAt"
+          type: "lastModifiedTime"
+      relationships:
+        - table: "Campaigns"
+          type: "manyToOne"
+          from_field: "CampaignId"
+        - table: "Content"
+          type: "oneToMany"
+          from_field: "IdeaId"
+
+    # --- Research ---
+    Research:
+      description: "Research outputs from the research agent"
+      fields:
+        - name: "Title"
+          type: "singleLineText"
+          required: true
+        - name: "Topic"
+          type: "singleLineText"
+          required: true
+        - name: "ContentIdeaId"
+          type: "linkedRecord"
+          referenceTable: "Content Ideas"
+        - name: "Sources"
+          type: "longText"
+          description: "JSON array of source URLs and summaries"
+        - name: "SourceCount"
+          type: "number"
+          description: "Number of sources found"
+        - name: "AverageCredibilityScore"
+          type: "number"
+          description: "Mean credibility score across sources"
+        - name: "KeyFindings"
+          type: "longText"
+          description: "Summary of key findings"
+        - name: "CompetitorAnalysis"
+          type: "longText"
+          description: "Competitive landscape analysis"
+        - name: "ConfidenceScore"
+          type: "number"
+          description: "0-1 confidence in research quality"
+        - name: "Status"
+          type: "singleSelect"
+          options: ["pending", "completed", "flagged"]
+          default: "pending"
+        - name: "ResearchAgent"
+          type: "singleLineText"
+          description: "Which agent performed this research"
+        - name: "CreatedAt"
+          type: "createdTime"
+        - name: "UpdatedAt"
+          type: "lastModifiedTime"
+      relationships:
+        - table: "Content Ideas"
+          type: "manyToOne"
+          from_field: "ContentIdeaId"
+
+    # --- Content ---
+    Content:
+      description: "Generated content ready for review and publishing"
+      fields:
+        - name: "Title"
+          type: "singleLineText"
+          required: true
+        - name: "Body"
+          type: "longText"
+          required: true
+          description: "The full generated content"
+        - name: "ContentIdeaId"
+          type: "linkedRecord"
+          referenceTable: "Content Ideas"
+        - name: "Type"
+          type: "singleSelect"
+          options: ["article", "social_post", "video_script", "thread", "poll"]
+        - name: "Platform"
+          type: "singleSelect"
+          options: ["Reddit", "X", "TikTok", "Facebook", "LinkedIn"]
+        - name: "WordCount"
+          type: "number"
+          description: "Approximate word count"
+        - name: "Status"
+          type: "singleSelect"
+          options: ["draft", "fact_checked", "qa_passed", "approved", "published", "rejected"]
+          default: "draft"
+        - name: "AssignedTo"
+          type: "linkedRecord"
+          referenceTable: "Agent Tasks"
+        - name: "FactCheckScore"
+          type: "number"
+          description: "0-1 fact check confidence"
+        - name: "QAScore"
+          type: "number"
+          description: "0-100 quality assurance score"
+        - name: "SeoScore"
+          type: "number"
+          description: "0-100 SEO optimization score"
+        - name: "Keywords"
+          type: "multiSelect"
+        - name: "Tags"
+          type: "multiSelect"
+        - name: "ScheduledAt"
+          type: "dateTime"
+          description: "Scheduled publish time"
+        - name: "CreatedAt"
+          type: "createdTime"
+        - name: "UpdatedAt"
+          type: "lastModifiedTime"
+      relationships:
+        - table: "Content Ideas"
+          type: "manyToOne"
+          from_field: "ContentIdeaId"
+        - table: "Assets"
+          type: "oneToMany"
+          from_field: "ContentId"
+        - table: "Social Posts"
+          type: "oneToMany"
+          from_field: "ContentId"
+
+    # --- Assets ---
+    Assets:
+      description: "Media assets (images, videos, documents) associated with content"
+      fields:
+        - name: "Name"
+          type: "singleLineText"
+          required: true
+        - name: "Type"
+          type: "singleSelect"
+          options: ["image", "video", "document", "audio", "template"]
+          required: true
+        - name: "Url"
+          type: "url"
+          required: true
+          description: "File URL or path"
+        - name: "ContentType"
+          type: "singleLineText"
+          description: "MIME type"
+        - name: "ContentId"
+          type: "linkedRecord"
+          referenceTable: "Content"
+        - name: "ThumbnailUrl"
+          type: "url"
+        - name: "FileSize"
+          type: "number"
+          description: "File size in bytes"
+        - name: "Dimensions"
+          type: "singleLineText"
+          description: "Width x Height for images/videos"
+        - name: "CreatedBy"
+          type: "singleLineText"
+        - name: "CreatedAt"
+          type: "createdTime"
+      relationships:
+        - table: "Content"
+          type: "manyToOne"
+          from_field: "ContentId"
+
+    # --- Social Posts ---
+    "Social Posts":
+      description: "Adapted content for social platforms, ready or published"
+      fields:
+        - name: "Platform"
+          type: "singleSelect"
+          options: ["Reddit", "X", "TikTok", "Facebook", "LinkedIn"]
+          required: true
+        - name: "ContentId"
+          type: "linkedRecord"
+          referenceTable: "Content"
+        - name: "PostText"
+          type: "longText"
+          required: true
+          description: "The post text formatted for the platform"
+        - name: "Hashtags"
+          type: "multiSelect"
+        - name: "MediaType"
+          type: "singleSelect"
+          options: ["text", "image", "video", "link", "poll"]
+        - name: "AssetId"
+          type: "linkedRecord"
+          referenceTable: "Assets"
+        - name: "PostType"
+          type: "singleSelect"
+          options: ["text_post", "image_post", "video_post", "thread", "poll"]
+        - name: "CharacterCount"
+          type: "number"
+        - name: "ScheduledTime"
+          type: "dateTime"
+        - name: "PublishedAt"
+          type: "dateTime"
+        - name: "Status"
+          type: "singleSelect"
+          options: ["draft", "scheduled", "published", "failed"]
+          default: "draft"
+        - name: "Engagement"
+          type: "number"
+          description: "Post-publication engagement score"
+        - name: "CreatedAt"
+          type: "createdTime"
+        - name: "UpdatedAt"
+          type: "lastModifiedTime"
+      relationships:
+        - table: "Content"
+          type: "manyToOne"
+          from_field: "ContentId"
+        - table: "Assets"
+          type: "manyToOne"
+          from_field: "AssetId"
+
+    # --- Agent Tasks ---
+    "Agent Tasks":
+      description: "Individual tasks assigned to agents for execution"
+      fields:
+        - name: "TaskName"
+          type: "singleLineText"
+          required: true
+        - name: "AgentId"
+          type: "singleLineText"
+          required: true
+          description: "Which agent should execute this"
+        - name: "Type"
+          type: "singleSelect"
+          options: ["research", "write", "fact_check", "qa", "seo", "repurpose", "publish", "analyze", "monitor"]
+          required: true
+        - name: "Priority"
+          type: "singleSelect"
+          options: ["low", "medium", "high", "critical"]
+          default: "medium"
+        - name: "Status"
+          type: "singleSelect"
+          options: ["pending", "running", "completed", "failed"]
+          default: "pending"
+        - name: "ContentId"
+          type: "linkedRecord"
+          referenceTable: "Content"
+        - name: "InputData"
+          type: "longText"
+          description: "JSON input data for the agent"
+        - name: "OutputData"
+          type: "longText"
+          description: "JSON output data from the agent"
+        - name: "Result"
+          type: "singleSelect"
+          options: ["success", "partial", "failure"]
+        - name: "StartedAt"
+          type: "dateTime"
+        - name: "CompletedAt"
+          type: "dateTime"
+        - name: "DurationSeconds"
+          type: "number"
+        - name: "ErrorMessage"
+          type: "longText"
+        - name: "RetryCount"
+          type: "number"
+          default: 0
+        - name: "CreatedAt"
+          type: "createdTime"
+      relationships:
+        - table: "Content"
+          type: "manyToOne"
+          from_field: "ContentId"
+
+    # --- Analytics ---
+    Analytics:
+      description: "Performance metrics and analytics for campaigns and content"
+      fields:
+        - name: "CampaignId"
+          type: "linkedRecord"
+          referenceTable: "Campaigns"
+        - name: "ContentId"
+          type: "linkedRecord"
+          referenceTable: "Content"
+        - name: "Platform"
+          type: "singleSelect"
+          options: ["Reddit", "X", "TikTok", "Facebook", "LinkedIn"]
+        - name: "Date"
+          type: "date"
+          required: true
+        - name: "Impressions"
+          type: "number"
+          default: 0
+        - name: "Reach"
+          type: "number"
+          default: 0
+        - name: "Engagement"
+          type: "number"
+          default: 0
+        - name: "EngagementRate"
+          type: "percent"
+          description: "Engagement / Impressions * 100"
+        - name: "Clicks"
+          type: "number"
+          default: 0
+        - name: "Conversions"
+          type: "number"
+          default: 0
+        - name: "Shares"
+          type: "number"
+          default: 0
+        - name: "Likes"
+          type: "number"
+          default: 0
+        - name: "Comments"
+          type: "number"
+          default: 0
+        - name: "SaveRate"
+          type: "percent"
+        - name: "ClickThroughRate"
+          type: "percent"
+        - name: "CostPerClick"
+          type: "currency"
+        - name: "ReturnOnInvestment"
+          type: "number"
+        - name: "SentimentScore"
+          type: "number"
+          description: "-1 to 1 sentiment score"
+        - name: "CreatedAt"
+          type: "createdTime"
+        - name: "UpdatedAt"
+          type: "lastModifiedTime"
+      relationships:
+        - table: "Campaigns"
+          type: "manyToOne"
+          from_field: "CampaignId"
+        - table: "Content"
+          type: "manyToOne"
+          from_field: "ContentId"
+
+  # --- Field Constraints ---
+  constraints:
+    max_field_size: 130000  # Airtable cell max
+    max_records_per_table: 100000
+    max_tables_per_base: 1000
+    max_attachments_per_record: 25
+    max_attachment_size_mb: 25
+
+  # --- Sync Configuration ---
+  sync:
+    batch_size: 50
+    poll_interval_seconds: 30
+    retry_on_rate_limit: true
+    conflict_resolution: "last_write_wins"
+    create_missing_fields: true

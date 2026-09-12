@@ -1,0 +1,58 @@
+# Honcho Configuration for Content Generator Workforce
+# Usage: honcho start -f honcho.yml
+#        honcho start workforce
+
+# Environment variables loaded automatically from .env
+default_env:
+  OLLAMA_BASE_URL: "http://localhost:11434"
+  OLLAMA_MODEL: "llama3.2:latest"
+  COMPOSIO_API_KEY: ""
+  AIRTABLE_API_KEY: ""
+  AIRTABLE_BASE_ID: ""
+  LOG_LEVEL: "INFO"
+  ENVIRONMENT: "development"
+  WORKFORCE_PORT: "8000"
+  WORKFORCE_HOST: "0.0.0.0"
+
+# Process definitions
+processes:
+  workforce:
+    command: "python3 run_workforce.py"
+    env:
+      - OLLAMA_BASE_URL
+      - OLLAMA_MODEL
+      - COMPOSIO_API_KEY
+      - AIRTABLE_API_KEY
+      - AIRTABLE_BASE_ID
+      - LOG_LEVEL
+      - WORKFORCE_PORT
+      - WORKFORCE_HOST
+    readiness:
+      timeout: 10
+      pattern: "Uvicorn running"
+    restart: true
+    autorestart: true
+    max_restarts: 3
+
+  health:
+    command: "python3 scripts/health_check.py"
+    env:
+      - OLLAMA_BASE_URL
+      - COMPOSIO_API_KEY
+    interval: 30
+    stdout: logs/health.log
+    stderr: logs/health-error.log
+
+  worker:
+    command: "python3 -c \"from agents.orchestrator.agent import MasterOrchestrator; o = MasterOrchestrator(); o.run_background()\""
+    env:
+      - OLLAMA_BASE_URL
+      - COMPOSIO_API_KEY
+      - AIRTABLE_API_KEY
+      - AIRTABLE_BASE_ID
+      - LOG_LEVEL
+    readiness:
+      timeout: 15
+    restart: true
+    autorestart: true
+    max_restarts: 3

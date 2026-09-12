@@ -1,0 +1,71 @@
+name: "Content Generator Workforce"
+version: "1.0.0"
+description: "A dependency-driven workforce of 20+ AI agents for content marketing"
+
+infrastructure:
+  ollama:
+    base_url: "http://localhost:11434"
+    default_model: "llama3.2"
+  composio:
+    api_key: "${COMPOSIO_API_KEY}"
+  airtable:
+    api_key: "${AIRTABLE_API_KEY}"
+    base_id: "${AIRTABLE_BASE_ID}"
+  obsidian:
+    vault_path: "~/Documents/Obsidian Vault"
+  google_drive:
+    credentials_path: "~/.credentials/gdrive.json"
+
+agents:
+  orchestrator:
+    enabled: true
+  trend_intelligence:
+    enabled: true
+  research:
+    enabled: true
+  audience_intelligence:
+    enabled: true
+  content_strategy:
+    enabled: true
+  article_writer:
+    enabled: true
+  social_content:
+    enabled: true
+  video_script:
+    enabled: true
+  seo:
+    enabled: true
+  repurposing:
+    enabled: true
+  fact_check:
+    enabled: true
+  qa:
+    enabled: true
+  publishing:
+    enabled: true
+  analytics:
+    enabled: true
+  optimisation:
+    enabled: true
+
+workflows:
+  content_pipeline:
+    - trend_intelligence
+    - research
+    - audience_intelligence
+    - content_strategy
+    - article_writer
+    - social_content
+    - video_script
+    - seo
+    - repurposing
+    - fact_check
+    - qa
+    - publishing
+    - analytics
+    - optimisation
+
+rules:
+  research_before_production: true
+  fact_check_before_approval: true
+  qa_before_publishing: true

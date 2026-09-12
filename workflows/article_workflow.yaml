@@ -1,0 +1,5 @@
+# Content Generator Workforce - Content Campaign Workflow
+# See content_campaign.yaml for the full multi-step workflow
+# This is a simplified reference
+name: "content_campaign"
+description: "Create a full content campaign from research to publishing"

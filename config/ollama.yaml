@@ -1,0 +1,138 @@
+# =============================================================================
+# Ollama Connection & Model Configuration
+# =============================================================================
+
+ollama:
+  # --- Connection Settings ---
+  base_url: "http://localhost:11434"
+  timeout: 120
+  max_retries: 3
+  retry_delay: 2
+  connection_pool_size: 10
+
+  # --- Model Assignments by Agent Type ---
+  # Each agent type gets an appropriate model based on its task complexity
+  model_assignments:
+    # Lightweight tasks (short-form content, classification, routing)
+    lightweight:
+      model: "llama3.2:1b"
+      temperature: 0.8
+      max_tokens: 512
+      description: "Fast inference for short-form content, classification, routing"
+      agents:
+        - social_content
+        - video_script
+        - repurposing
+        - publishing
+
+    # Standard generation (articles, strategy, analysis)
+    standard:
+      model: "llama3.2:latest"
+      temperature: 0.7
+      max_tokens: 4096
+      description: "Balanced model for articles, strategy, and general analysis"
+      agents:
+        - article_writer
+        - content_strategy
+        - seo
+        - qa
+        - fact_check
+        - analytics
+        - optimisation
+
+    # Intelligence/research tasks (deep analysis, pattern recognition)
+    intelligence:
+      model: "gemma3:4b"
+      temperature: 0.6
+      max_tokens: 2048
+      description: "Strong reasoning for intelligence, research, and trend analysis"
+      agents:
+        - trend_intelligence
+        - research
+        - audience_intelligence
+        - reddit_intelligence
+        - x_intelligence
+        - tiktok_intelligence
+        - facebook_intelligence
+        - linkedin_intelligence
+        - seo
+
+    # Orchestrator (coordination, workflow management)
+    orchestrator:
+      model: "llama3.2:latest"
+      temperature: 0.5
+      max_tokens: 2048
+      description: "Coordination model for the master orchestrator"
+      agents:
+        - orchestrator
+
+  # --- Inference Parameters ---
+  defaults:
+    temperature: 0.7
+    max_tokens: 4096
+    top_p: 0.9
+    repeat_penalty: 1.1
+    num_ctx: 4096
+    num_gpu: 1  # Layers to offload to GPU (-1 = all)
+
+  # --- Model-Specific Tuning ---
+  models:
+    llama3.2:1b:
+      context_window: 131072
+      quantization: "q4_0"
+      speed_rating: 5
+      quality_rating: 2
+      best_for: [routing, short_content, classification]
+    llama3.2:latest:
+      context_window: 131072
+      quantization: "q4_0"
+      speed_rating: 3
+      quality_rating: 4
+      best_for: [articles, strategy, analysis, orchestration]
+    gemma3:4b:
+      context_window: 8192
+      quantization: "q4_0"
+      speed_rating: 3
+      quality_rating: 4
+      best_for: [intelligence, research, reasoning]
+    gemma4:31b-cloud:
+      context_window: 32768
+      quantization: "q5_1"
+      speed_rating: 1
+      quality_rating: 5
+      best_for: [complex_analysis, deep_research, quality_content]
+    brettanthonysjoberg179/brettapps:latest:
+      context_window: 8192
+      quantization: "q4_0"
+      speed_rating: 3
+      quality_rating: 3
+      best_for: [custom_tasks, fine_tuned_workflows]
+
+  # --- Resource Management ---
+  resource_limits:
+    max_concurrent_requests: 5
+    memory_limit_mb: 4096
+    gpu_memory_fraction: 0.9
+    request_timeout: 120
+    idle_timeout: 300
+
+  # --- Caching ---
+  caching:
+    enabled: true
+    type: "lru"
+    max_size_mb: 512
+    ttl_seconds: 3600
+    cache_system_prompts: true
+
+  # --- Fallback Chain ---
+  fallback:
+    enabled: true
+    chain:
+      - model: "llama3.2:latest"
+        priority: 1
+      - model: "gemma3:4b"
+        priority: 2
+      - model: "llama3.2:1b"
+        priority: 3
+    on_failure: "next_model"
+    max_fallback_depth: 2

@@ -1,0 +1,17 @@
+{
+    "name": "content-generator-workforce",
+    "description": "Agent workforce for content marketing - 20+ specialized AI agents",
+    "version": "1.0.0",
+    "command": "python3",
+    "args": ["/home/brettanthonysjoberg179/contents-generator-workforce/mcp_server/main.py", "--stdio"],
+    "env": {
+        "COMPOSIO_API_KEY": "${COMPOSIO_API_KEY}",
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "OLLAMA_MODEL": "llama3.2:latest",
+        "PYTHONPATH": "/home/brettanthonysjoberg179/contents-generator-workforce",
+        "MCPSERVER_MODE": "stdio"
+    },
+    "timeout": 300,
+    "connect_timeout": 60,
+    "transport": "stdio"
+}

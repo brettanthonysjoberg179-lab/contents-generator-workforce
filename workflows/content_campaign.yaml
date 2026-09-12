@@ -1,0 +1,291 @@
+# Content Generator Workforce - Workflow Definitions
+
+# ============================================================
+# Content Campaign Workflow
+# ============================================================
+content_campaign:
+  description: "Create a full content campaign from research to publishing"
+  trigger: "User requests a content campaign"
+  steps:
+    - id: "trend_scan"
+      agent: "trend_intelligence"
+      input:
+        topic: "{{topic}}"
+        platforms: ["reddit", "x", "tiktok", "facebook", "linkedin"]
+      output: "trend_intelligence_output"
+    
+    - id: "deep_research"
+      agent: "research"
+      depends_on: ["trend_scan"]
+      input:
+        trends: "{{trend_intelligence_output.trends}}"
+        max_sources: 10
+      output: "research_output"
+    
+    - id: "audience_analysis"
+      agent: "audience_intelligence"
+      depends_on: ["trend_scan"]
+      input:
+        platforms_data: "{{trend_intelligence_output}}"
+      output: "audience_intelligence_output"
+    
+    - id: "strategy_creation"
+      agent: "content_strategy"
+      depends_on: ["deep_research", "audience_analysis"]
+      input:
+        trends: "{{research_output.trends}}"
+        audience: "{{audience_intelligence_output.audience_model}}"
+      output: "content_strategy_output"
+    
+    - id: "article_generation"
+      agent: "article_writer"
+      depends_on: ["strategy_creation"]
+      input:
+        briefs: "{{content_strategy_output.content_briefs}}"
+      output: "article_writer_output"
+    
+    - id: "social_generation"
+      agent: "social_content"
+      depends_on: ["strategy_creation"]
+      input:
+        briefs: "{{content_strategy_output.content_briefs}}"
+      output: "social_content_output"
+    
+    - id: "video_generation"
+      agent: "video_script"
+      depends_on: ["strategy_creation"]
+      input:
+        briefs: "{{content_strategy_output.content_briefs}}"
+      output: "video_script_output"
+    
+    - id: "seo_optimization"
+      agent: "seo"
+      depends_on: ["article_generation"]
+      input:
+        articles: "{{article_writer_output.articles}}"
+      output: "seo_output"
+    
+    - id: "repurposing"
+      agent: "repurposing"
+      depends_on: ["article_generation", "social_generation", "video_generation"]
+      input:
+        articles: "{{article_writer_output.articles}}"
+        posts: "{{social_content_output.posts}}"
+        scripts: "{{video_script_output.scripts}}"
+      output: "repurposing_output"
+    
+    - id: "fact_checking"
+      agent: "fact_check"
+      depends_on: ["article_generation", "social_generation", "video_generation"]
+      input:
+        content: "{{article_writer_output.articles}}"
+      output: "fact_check_output"
+    
+    - id: "quality_assurance"
+      agent: "qa"
+      depends_on: ["fact_checking", "seo_optimization", "repurposing"]
+      input:
+        articles: "{{article_writer_output.articles}}"
+        posts: "{{social_content_output.posts}}"
+        scripts: "{{video_script_output.scripts}}"
+        fact_checks: "{{fact_check_output.fact_checks}}"
+      output: "qa_output"
+    
+    - id: "publishing"
+      agent: "publishing"
+      depends_on: ["quality_assurance"]
+      input:
+        approved_content: "{{qa_output.qa_results}}"
+        platforms: ["x", "facebook", "linkedin", "tiktok"]
+      output: "publishing_output"
+    
+    - id: "analytics"
+      agent: "analytics"
+      depends_on: ["publishing"]
+      input:
+        published: "{{publishing_output.published}}"
+      output: "analytics_output"
+    
+    - id: "optimisation"
+      agent: "optimisation"
+      depends_on: ["analytics"]
+      input:
+        analytics: "{{analytics_output.analytics}}"
+        strategy: "{{content_strategy_output}}"
+      output: "optimisation_output"
+
+# ============================================================
+# Article Workflow
+# ============================================================
+article_workflow:
+  description: "Generate a single article from a topic"
+  trigger: "User requests article generation"
+  steps:
+    - id: "research"
+      agent: "research"
+      input:
+        topic: "{{topic}}"
+        max_sources: 5
+      output: "research_output"
+    
+    - id: "strategy"
+      agent: "content_strategy"
+      depends_on: ["research"]
+      input:
+        research: "{{research_output.research_briefs}}"
+      output: "content_strategy_output"
+    
+    - id: "write"
+      agent: "article_writer"
+      depends_on: ["strategy"]
+      input:
+        brief: "{{content_strategy_output.content_briefs[0]}}"
+      output: "article_writer_output"
+    
+    - id: "fact_check"
+      agent: "fact_check"
+      depends_on: ["write"]
+      input:
+        articles: "{{article_writer_output.articles}}"
+      output: "fact_check_output"
+    
+    - id: "qa"
+      agent: "qa"
+      depends_on: ["fact_check"]
+      input:
+        articles: "{{article_writer_output.articles}}"
+        fact_checks: "{{fact_check_output.fact_checks}}"
+      output: "qa_output"
+    
+    - id: "approve"
+      agent: "orchestrator"
+      depends_on: ["qa"]
+      input:
+        content: "{{qa_output.qa_results}}"
+      output: "approval_result"
+
+# ============================================================
+# Social Campaign Workflow
+# ============================================================
+social_campaign:
+  description: "Create a week of social media posts"
+  trigger: "User requests social media content"
+  steps:
+    - id: "trend_scan"
+      agent: "trend_intelligence"
+      input:
+        platforms: ["x", "facebook", "linkedin", "tiktok"]
+      output: "trend_intelligence_output"
+    
+    - id: "strategy"
+      agent: "content_strategy"
+      depends_on: ["trend_scan"]
+      input:
+        trends: "{{trend_intelligence_output.trends}}"
+        platforms: ["x", "facebook", "linkedin"]
+      output: "content_strategy_output"
+    
+    - id: "create_posts"
+      agent: "social_content"
+      depends_on: ["strategy"]
+      input:
+        briefs: "{{content_strategy_output.content_briefs}}"
+        platforms: ["x", "facebook", "linkedin"]
+      output: "social_content_output"
+    
+    - id: "qa"
+      agent: "qa"
+      depends_on: ["create_posts"]
+      input:
+        posts: "{{social_content_output.posts}}"
+      output: "qa_output"
+    
+    - id: "schedule"
+      agent: "publishing"
+      depends_on: ["qa"]
+      input:
+        posts: "{{qa_output.qa_results}}"
+        platforms: ["x", "facebook", "linkedin"]
+      output: "publishing_output"
+
+# ============================================================
+# Video Workflow
+# ============================================================
+video_workflow:
+  description: "Create video scripts from a topic"
+  trigger: "User requests video content"
+  steps:
+    - id: "research"
+      agent: "research"
+      input:
+        topic: "{{topic}}"
+      output: "research_output"
+    
+    - id: "strategy"
+      agent: "content_strategy"
+      depends_on: ["research"]
+      input:
+        trends: "{{research_output.trends}}"
+      output: "content_strategy_output"
+    
+    - id: "scripts"
+      agent: "video_script"
+      depends_on: ["strategy"]
+      input:
+        briefs: "{{content_strategy_output.content_briefs}}"
+      output: "video_script_output"
+    
+    - id: "repurpose"
+      agent: "repurposing"
+      depends_on: ["scripts"]
+      input:
+        scripts: "{{video_script_output.scripts}}"
+      output: "repurposing_output"
+
+# ============================================================
+# Daily Content Workflow
+# ============================================================
+daily_content:
+  description: "Generate daily content across all platforms"
+  trigger: "cron: 0 8 * * *"
+  steps:
+    - id: "trend_scan"
+      agent: "trend_intelligence"
+      input:
+        platforms: ["reddit", "x", "tiktok", "facebook", "linkedin"]
+    
+    - id: "research"
+      agent: "research"
+      depends_on: ["trend_scan"]
+    
+    - id: "create_posts"
+      agent: "social_content"
+      depends_on: ["research"]
+      input:
+        count: 3
+    
+    - id: "qa"
+      agent: "qa"
+      depends_on: ["create_posts"]
+    
+    - id: "publish"
+      agent: "publishing"
+      depends_on: ["qa"]
+
+# ============================================================
+# Analytics Workflow
+# ============================================================
+analytics_workflow:
+  description: "Collect and analyze content performance"
+  trigger: "cron: 0 9 * * 1"  # Every Monday at 9am
+  steps:
+    - id: "collect"
+      agent: "analytics"
+      input:
+        period: "last_week"
+    
+    - id: "analyse"
+      agent: "optimisation"
+      depends_on: ["collect"]
+      input:
+        analytics: "{{analytics_output.analytics}}"

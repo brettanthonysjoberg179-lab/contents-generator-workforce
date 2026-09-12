@@ -1,0 +1,214 @@
+# Content Generator Workforce — Ebook Production Workflow
+name: "ebook_workflow"
+description: "Produce a complete dual-format ebook from topic to published product"
+version: "1.0.0"
+
+stages:
+  # -----------------------------------------------------------
+  # Stage 1: Research & Strategy
+  # -----------------------------------------------------------
+  - id: research
+    name: "Research & Strategy"
+    agents: [research_agent, content_strategy_agent]
+    inputs:
+      - topic
+      - target_audience
+      - price_point
+    outputs:
+      - market_research
+      - content_brief
+      - competitor_analysis
+    knowledge:
+      - knowledge/research/
+      - knowledge/audience/
+    timeout: 3600
+    requires_approval: false
+
+  # -----------------------------------------------------------
+  # Stage 2: Content Creation
+  # -----------------------------------------------------------
+  - id: content_creation
+    name: "Content Creation"
+    agents: [article_agent, chapter_agent, seo_agent]
+    inputs:
+      - content_brief
+      - market_research
+      - brand_voice
+    outputs:
+      - manuscript_markdown
+      - seo_metadata
+      - chapter_outlines
+    knowledge:
+      - knowledge/brand/
+      - knowledge/content_rules/
+    timeout: 7200
+    requires_approval: true
+    approval_level: "content_strategy"
+
+  # -----------------------------------------------------------
+  # Stage 3: Editorial & Formatting
+  # -----------------------------------------------------------
+  - id: editorial
+    name: "Editorial & Formatting"
+    agents: [editing_agent, seo_agent]
+    inputs:
+      - manuscript_markdown
+      - seo_metadata
+    outputs:
+      - polished_manuscript
+      - formatted_metadata
+      - toc
+    knowledge:
+      - knowledge/brand/
+      - knowledge/content_rules/
+    timeout: 3600
+    requires_approval: true
+    approval_level: "editor"
+
+  # -----------------------------------------------------------
+  # Stage 4: Dual-Format Build
+  # -----------------------------------------------------------
+  - id: build
+    name: "Dual-Format Build"
+    inputs:
+      - polished_manuscript
+      - formatted_metadata
+    outputs:
+      - epub_3_3
+      - pdf_x_ua
+      - cover_assets
+    knowledge:
+      - knowledge/content_rules/
+    timeout: 1800
+    requires_approval: false
+    build_rules:
+      epub:
+        format: "EPUB 3.3"
+        css: "reflowable"
+        orphans: 2
+        widows: 2
+      pdf:
+        format: "PDF/X-UA"
+        page_size: "A4"
+        css: "paged_media"
+        running_headers: true
+        page_break: "right"
+
+  # -----------------------------------------------------------
+  # Stage 5: Quality Control
+  # -----------------------------------------------------------
+  - id: qa
+    name: "Quality Control"
+    agents: [qa_agent, fact_check_agent]
+    inputs:
+      - epub_3_3
+      - pdf_x_ua
+      - manuscript_markdown
+    outputs:
+      - qa_report
+      - validation_results
+    knowledge:
+      - knowledge/content_rules/
+    timeout: 1800
+    requires_approval: false
+    qa_checks:
+      - epub_structure_validation
+      - pdf_page_count
+      - metadata_consistency
+      - content_integrity
+      - orphan_widow_control
+      - page_budget_enforcement
+
+  # -----------------------------------------------------------
+  # Stage 6: Cover & Assets
+  # -----------------------------------------------------------
+  - id: assets
+    name: "Cover & Assets"
+    agents: [publishing_agent]
+    inputs:
+      - ebook_title
+      - ebook_author
+      - ebook_description
+    outputs:
+      - cover_pdf
+      - cover_png
+      - cover_jpg
+    knowledge:
+      - knowledge/brand/
+    timeout: 1800
+    requires_approval: true
+    approval_level: "design"
+
+  # -----------------------------------------------------------
+  # Stage 7: Publishing & Distribution
+  # -----------------------------------------------------------
+  - id: publish
+    name: "Publishing & Distribution"
+    agents: [publishing_agent, analytics_agent]
+    inputs:
+      - epub_3_3
+      - pdf_x_ua
+      - cover_assets
+      - metadata
+    outputs:
+      - published_assets
+      - marketplace_listing
+      - analytics_tracking
+    knowledge:
+      - knowledge/platform_rules/
+    timeout: 3600
+    requires_approval: true
+    approval_level: "publisher"
+    distribution:
+      - google_drive
+      - obsidian
+      - marketplace
+      - stripe_payment
+
+  # -----------------------------------------------------------
+  # Stage 8: Analytics & Learning
+  # -----------------------------------------------------------
+  - id: analytics
+    name: "Analytics & Learning"
+    agents: [analytics_agent]
+    inputs:
+      - published_assets
+      - sales_data
+      - engagement_data
+    outputs:
+      - analytics_report
+      - performance_insights
+    timeout: 1800
+    requires_approval: false
+    feedback_loop: true
+
+# Approval Gates
+approval_gates:
+  - stage: "content_creation"
+    level: "content_strategy"
+    required: true
+    approver: "Human"
+  - stage: "editorial"
+    level: "editor"
+    required: true
+    approver: "Human"
+  - stage: "assets"
+    level: "design"
+    required: true
+    approver: "Human"
+  - stage: "publish"
+    level: "publisher"
+    required: true
+    approver: "Human"
+
+# Dependencies
+dependencies:
+  - "shared/__init__.py"
+  - "agents/orchestrator/agent.py"
+  - "agents/research/agent.py"
+  - "agents/content_strategy/agent.py"
+  - "agents/article_writer/agent.py"
+  - "agents/editing_agent/agent.py"
+  - "agents/qa/agent.py"
+  - "agents/publishing/agent.py"
+  - "agents/analytics/agent.py"

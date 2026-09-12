@@ -1,0 +1,40 @@
+# Content Generator Workforce - Configuration
+# System-level settings
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  log_level: "INFO"
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+
+logging:
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  file: "logs/workforce.log"
+  max_size_mb: 100
+  backup_count: 5
+
+paths:
+  project_root: "/home/brettanthonysjoberg179/contents-generator-workforce"
+  knowledge_dir: "knowledge"
+  workflows_dir: "workflows"
+  files_dir: "files"
+  scripts_dir: "scripts"
+  logs_dir: "logs"
+  reports_dir: "reports"
+
+database:
+  enabled: false
+  url: "sqlite:///data/workforce.db"
+  pool_size: 5
+
+scheduler:
+  enabled: false
+  interval_seconds: 300
+
+security:
+  require_approval: true
+  max_token_length: 4096
+  rate_limit_per_minute: 60

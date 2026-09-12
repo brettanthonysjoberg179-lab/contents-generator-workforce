@@ -1,0 +1,155 @@
+# =============================================================================
+# Composio Session Configuration
+# Defines connected apps, tool mappings, and session management.
+# =============================================================================
+
+composio:
+  api_key: "${COMPOSIO_API_KEY}"
+  api_url: "https://app.composio.com"
+  version: "0.21.1"
+  default_app: "reddit"
+
+  # --- Connected Apps ---
+  connected_apps:
+    reddit:
+      enabled: true
+      app_name: "reddit"
+      display_name: "Reddit"
+      auth_type: "oauth2"
+      tools:
+        - name: "reddit_search"
+          description: "Search Reddit for posts and comments"
+          parameters:
+            query: { type: "string", description: "Search query" }
+            subreddit: { type: "string", description: "Subreddit to search" }
+            limit: { type: "integer", description: "Max results" }
+        - name: "reddit_post"
+          description: "Create a Reddit post"
+          parameters:
+            subreddit: { type: "string" }
+            title: { type: "string" }
+            body: { type: "string" }
+        - name: "reddit_reply"
+          description: "Reply to a Reddit comment"
+          parameters:
+            comment_id: { type: "string" }
+            body: { type: "string" }
+
+    x:
+      enabled: true
+      app_name: "x"
+      display_name: "X / Twitter"
+      auth_type: "oauth2"
+      tools:
+        - name: "x_search"
+          description: "Search X/Twitter for tweets"
+          parameters:
+            query: { type: "string" }
+            limit: { type: "integer" }
+        - name: "x_post"
+          description: "Post a tweet"
+          parameters:
+            text: { type: "string" }
+            media_url: { type: "string", description: "Optional media URL" }
+
+    tiktok:
+      enabled: true
+      app_name: "tiktok"
+      display_name: "TikTok"
+      auth_type: "oauth2"
+      tools:
+        - name: "tiktok_search"
+          description: "Search TikTok for videos"
+          parameters:
+            query: { type: "string" }
+            limit: { type: "integer" }
+        - name: "tiktok_post"
+          description: "Create a TikTok video post"
+          parameters:
+            caption: { type: "string" }
+            video_url: { type: "string" }
+            hashtags: { type: "array", items: { type: "string" } }
+
+    facebook:
+      enabled: true
+      app_name: "facebook"
+      display_name: "Facebook"
+      auth_type: "oauth2"
+      tools:
+        - name: "facebook_search"
+          description: "Search Facebook pages and groups"
+          parameters:
+            query: { type: "string" }
+            type: { type: "string" }
+        - name: "facebook_post"
+          description: "Create a Facebook post"
+          parameters:
+            page_id: { type: "string" }
+            message: { type: "string" }
+            link: { type: "string" }
+
+    linkedin:
+      enabled: true
+      app_name: "linkedin"
+      display_name: "LinkedIn"
+      auth_type: "oauth2"
+      tools:
+        - name: "linkedin_search"
+          description: "Search LinkedIn for posts and profiles"
+          parameters:
+            query: { type: "string" }
+            type: { type: "string" }
+        - name: "linkedin_post"
+          description: "Create a LinkedIn post"
+          parameters:
+            text: { type: "string" }
+            media_url: { type: "string" }
+            visibility: { type: "string", default: "PUBLIC" }
+
+  # --- Tool Mappings ---
+  # Maps agent tools to Composio app tools
+  tool_mappings:
+    composio:
+      - "reddit_search"
+      - "reddit_post"
+      - "x_search"
+      - "x_post"
+      - "tiktok_search"
+      - "facebook_search"
+      - "facebook_post"
+      - "linkedin_search"
+      - "linkedin_post"
+
+    # Platform-specific tool access per agent
+    reddit_intelligence:
+      app: "reddit"
+      tools: ["reddit_search", "reddit_post", "reddit_reply"]
+    x_intelligence:
+      app: "x"
+      tools: ["x_search", "x_post"]
+    tiktok_intelligence:
+      app: "tiktok"
+      tools: ["tiktok_search", "tiktok_post"]
+    facebook_intelligence:
+      app: "facebook"
+      tools: ["facebook_search", "facebook_post"]
+    linkedin_intelligence:
+      app: "linkedin"
+      tools: ["linkedin_search", "linkedin_post"]
+
+  # --- Session Management ---
+  sessions:
+    max_concurrent: 5
+    timeout_seconds: 3600
+    refresh_before_seconds: 300
+    retry_on_failure: true
+    max_retries: 3
+
+  # --- Webhook Configuration ---
+  webhooks:
+    enabled: false
+    url: ""  # Set to your webhook URL
+    events:
+      - "tool_executed"
+      - "session_expired"
+      - "auth_error"
